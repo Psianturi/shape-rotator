@@ -1,0 +1,34 @@
+# Flutter / Dart
+frontend/.dart_tool/
+frontend/.flutter-plugins
+frontend/.flutter-plugins-dependencies
+frontend/build/
+frontend/android/.gradle/
+frontend/android/app/build/
+frontend/ios/Pods/
+frontend/ios/.symlinks/
+frontend/linux/
+frontend/macos/
+frontend/windows/
+frontend/web/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+backend/tests/
+*.egg-info/
+
+# Contracts artifacts (generated, not needed for Cloud Build)
+contracts/config/*.bin
+contracts/config/*.abi
+
+# Git
+.git/
+.gitignore
+
+# Docs
+*.md
+DEMO_SCRIPT.md
+CLOUD_RUN_DEPLOY.md

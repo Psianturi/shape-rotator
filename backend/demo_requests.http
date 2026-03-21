@@ -1,0 +1,46 @@
+@user_id = user_replace_after_register
+
+### Health
+GET http://127.0.0.1:8000/health
+
+### Register anonymous identity
+POST http://127.0.0.1:8000/register
+Content-Type: application/json
+
+{
+  "master_commitment": "commitment_user_alpha_001",
+  "allowlist": ["0xTrusted001"]
+}
+
+### Sign intent - routine transfer (expected allow)
+POST http://127.0.0.1:8000/sign-intent
+Content-Type: application/json
+
+{
+  "user_id": "{{user_id}}",
+  "destination": "0xTrusted001",
+  "amount": 120,
+  "user_partial_signature": "user_sig_mock_001"
+}
+
+### Sign intent - suspicious transfer by amount (expected deny)
+POST http://127.0.0.1:8000/sign-intent
+Content-Type: application/json
+
+{
+  "user_id": "{{user_id}}",
+  "destination": "0xTrusted001",
+  "amount": 900,
+  "user_partial_signature": "user_sig_mock_002"
+}
+
+### Sign intent - suspicious transfer by new address (expected deny)
+POST http://127.0.0.1:8000/sign-intent
+Content-Type: application/json
+
+{
+  "user_id": "{{user_id}}",
+  "destination": "0xNewRisk999",
+  "amount": 100,
+  "user_partial_signature": "user_sig_mock_003"
+}

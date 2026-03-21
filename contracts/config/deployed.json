@@ -1,0 +1,8 @@
+{
+  "IdentityRegistry": "0x480E7BA834348ef45a140Aa8F5b09c4997c5F0a3",
+  "PerisAIWallet": "0x330d694c6822763e5d83770fec39702784F9dBFa",
+  "AgentRegistry": "0x0Ad7be67C6FF590E6AC46c4A52A46EB4d6F249Dd",
+  "chain_id": 11155111,
+  "network": "sepolia",
+  "deployer": "0xe52bb4B913B83A71d0d2deD47683B1154bf2560b"
+}

@@ -1,0 +1,116 @@
+substitutions:
+  _TAG: latest
+  _REGION: asia-southeast1
+  _PROJECT: perisai-490814
+  _REGISTRY: asia-southeast1-docker.pkg.dev/perisai-490814/perisai
+
+steps:
+  # ── Build enclave signer ───────────────────────────────────────────────
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -f
+      - backend/Dockerfile.enclave
+      - -t
+      - $_REGISTRY/enclave-signer:$_TAG
+      - backend/
+
+  # ── Push enclave signer ────────────────────────────────────────────────
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - $_REGISTRY/enclave-signer:$_TAG
+
+  # ── Deploy enclave signer to Cloud Run ────────────────────────────────
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - perisai-enclave-signer
+      - --image=$_REGISTRY/enclave-signer:$_TAG
+      - --region=$_REGION
+      - --platform=managed
+      - --no-allow-unauthenticated
+      - --memory=256Mi
+      - --cpu=1
+      - --min-instances=0
+      - --max-instances=3
+      - --set-env-vars=TEE_MODE=simulated
+      - --port=8080
+      - --project=$_PROJECT
+
+  # ── Capture enclave URL ────────────────────────────────────────────────
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        gcloud run services describe perisai-enclave-signer \
+          --region=$_REGION \
+          --project=$_PROJECT \
+          --format=value(status.url) \
+          | tr -d '[:space:]' > /workspace/enclave_url.txt
+        echo "Enclave URL: $$(cat /workspace/enclave_url.txt)"
+
+  # ── Build backend ──────────────────────────────────────────────────────
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -f
+      - backend/Dockerfile
+      - -t
+      - $_REGISTRY/guardian-api:$_TAG
+      - backend/
+
+  # ── Push backend ───────────────────────────────────────────────────────
+  - name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - $_REGISTRY/guardian-api:$_TAG
+
+  # ── Deploy backend with enclave URL ───────────────────────────────────
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        ENCLAVE_URL=$$(cat /workspace/enclave_url.txt)
+        echo "Deploying backend with ENCLAVE_URL=$$ENCLAVE_URL"
+        gcloud run deploy perisai-guardian-api \
+          --image=$_REGISTRY/guardian-api:$_TAG \
+          --region=$_REGION \
+          --platform=managed \
+          --allow-unauthenticated \
+          --memory=512Mi \
+          --cpu=1 \
+          --min-instances=0 \
+          --max-instances=5 \
+          --set-env-vars="ENCLAVE_URL=$$ENCLAVE_URL" \
+          --port=8080 \
+          --project=$_PROJECT
+
+  # ── Health check + print URLs ─────────────────────────────────────────
+  - name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        BACKEND_URL=$$(gcloud run services describe perisai-guardian-api \
+          --region=$_REGION \
+          --project=$_PROJECT \
+          --format=value(status.url))
+        ENCLAVE_URL=$$(cat /workspace/enclave_url.txt)
+        echo "================================"
+        echo "Backend  : $$BACKEND_URL"
+        echo "Enclave  : $$ENCLAVE_URL"
+        echo "Health   : $$BACKEND_URL/health"
+        echo "================================"
+        curl -sf "$$BACKEND_URL/health" | python3 -m json.tool || echo "warming up..."
+
+images:
+  - asia-southeast1-docker.pkg.dev/perisai-490814/perisai/guardian-api:$_TAG
+  - asia-southeast1-docker.pkg.dev/perisai-490814/perisai/enclave-signer:$_TAG
+
+options:
+  logging: CLOUD_LOGGING_ONLY
