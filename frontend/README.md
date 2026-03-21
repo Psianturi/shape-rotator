@@ -1,16 +1,29 @@
-# perisai_wallet
+# PerisAI Flutter App
 
-A new Flutter project.
+Mobile app for the PerisAI threshold guardian wallet.
 
-## Getting Started
+## What it does
 
-This project is a starting point for a Flutter application.
+- Simulates biometric sign-in
+- Registers an anonymous identity to the Guardian API
+- Shows live guardian status, policy, and recent activity
+- Lets you test trusted and suspicious transfer intents
 
-A few resources to get you started if this is your first Flutter project:
+## Run
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+```bash
+flutter pub get
+flutter run
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+If you want to override the backend URL:
+
+```bash
+flutter run --dart-define=BACKEND_URL=https://perisai-guardian-api-305832734922.asia-southeast1.run.app
+```
+
+## Notes
+
+- Default backend URL is set in `lib/config/app_config.dart`
+- Main flow: Splash -> Biometric -> Dashboard -> Transfer -> Activity -> Guardian Detail
+- Use the Dashboard refresh action if you want to re-fetch live guardian profile data

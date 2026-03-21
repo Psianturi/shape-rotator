@@ -83,6 +83,11 @@ python -m pytest tests/ -v
 
 ## Deploy to Cloud Run (Project: perisai-490814)
 
+Current live services:
+
+- Backend: https://perisai-guardian-api-305832734922.asia-southeast1.run.app
+- Enclave: https://perisai-enclave-signer-305832734922.asia-southeast1.run.app
+
 ```bash
 # First time only
 gcloud auth login
@@ -90,10 +95,9 @@ gcloud config set project perisai-490814
 chmod +x deploy.sh && ./deploy.sh
 ```
 
-After deploy, update `frontend/lib/config/app_config.dart` with the Backend URL output,
-or run Flutter with:
+The Flutter app already defaults to the live backend URL. To override it locally, run:
 ```bash
-flutter run --dart-define=BACKEND_URL=https://perisai-guardian-api-XXXXXXXX-as.a.run.app
+flutter run --dart-define=BACKEND_URL=https://perisai-guardian-api-305832734922.asia-southeast1.run.app
 ```
 
 ## Deploy Contracts to Sepolia
