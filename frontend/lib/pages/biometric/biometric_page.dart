@@ -237,8 +237,6 @@ class _HintCard extends StatelessWidget {
     );
   }
 }
-}
-}
 
 class _BiometricButton extends StatelessWidget {
   final bool scanning;

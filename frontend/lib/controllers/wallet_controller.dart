@@ -96,7 +96,7 @@ class WalletController extends ChangeNotifier {
 
       _addActivity(ActivityEntry(
         status: guardianStatus,
-        label: '${guardianStatus} → ${_shortAddr(destination)}',
+        label: '$guardianStatus → ${_shortAddr(destination)}',
         detail: '${amount.toStringAsFixed(4)} ETH | risk: $riskScore/100',
         timestamp: DateTime.now(),
       ));

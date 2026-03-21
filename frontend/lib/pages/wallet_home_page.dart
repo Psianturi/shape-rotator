@@ -3,7 +3,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 
-import '../models/guardian_models.dart';
 import '../services/guardian_api.dart';
 
 class WalletHomePage extends StatefulWidget {
