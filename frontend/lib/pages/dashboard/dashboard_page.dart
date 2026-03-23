@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../controllers/wallet_controller.dart';
 import '../../theme/app_theme.dart';
 import '../activity/activity_page.dart';
+import '../activity/transaction_proof_page.dart';
 import '../transfer/transfer_page.dart';
 import 'guardian_detail_page.dart';
 import 'guardian_status_card.dart';
@@ -216,6 +217,14 @@ class _RecentTile extends StatelessWidget {
                 ],
               ),
             ),
+            if (entry.hasProof)
+              IconButton(
+                tooltip: 'Open proof',
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => TransactionProofPage(entry: entry)),
+                ),
+                icon: const Icon(Icons.receipt_long_rounded, color: AppColors.textSecondary, size: 18),
+              ),
           ],
         ),
       ),

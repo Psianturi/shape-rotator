@@ -95,9 +95,14 @@ class WalletController extends ChangeNotifier {
       }
 
       _addActivity(ActivityEntry(
+        intentId: decision.intentId,
         status: guardianStatus,
         label: '$guardianStatus → ${_shortAddr(destination)}',
         detail: '${amount.toStringAsFixed(4)} ETH | risk: $riskScore/100',
+        destination: destination,
+        amountEth: amount,
+        proofDigest: decision.evmTransferDigest,
+        guardianSignature: decision.status == 'allow' ? lastTxDigest : null,
         timestamp: DateTime.now(),
       ));
     } catch (_) {
@@ -153,15 +158,27 @@ class WalletController extends ChangeNotifier {
 }
 
 class ActivityEntry {
+  final String? intentId;
   final String status;
   final String label;
   final String detail;
+  final String? destination;
+  final double? amountEth;
+  final String? proofDigest;
+  final String? guardianSignature;
   final DateTime timestamp;
 
   const ActivityEntry({
+    this.intentId,
     required this.status,
     required this.label,
     required this.detail,
+    this.destination,
+    this.amountEth,
+    this.proofDigest,
+    this.guardianSignature,
     required this.timestamp,
   });
+
+  bool get hasProof => intentId != null || proofDigest != null || guardianSignature != null;
 }

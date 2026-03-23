@@ -21,6 +21,7 @@ class RuleEvaluation {
 
 class GuardianDecision {
   const GuardianDecision({
+    required this.intentId,
     required this.status,
     required this.reason,
     required this.riskScore,
@@ -30,6 +31,7 @@ class GuardianDecision {
     this.evmTransferDigest,
   });
 
+  final String intentId;
   final String status;
   final String reason;
   final int riskScore;
@@ -41,6 +43,7 @@ class GuardianDecision {
   factory GuardianDecision.fromJson(Map<String, dynamic> json) {
     final rawRules = json['rule_evaluations'] as List<dynamic>? ?? const [];
     return GuardianDecision(
+      intentId: json['intent_id'] as String? ?? '-',
       status: json['status'] as String? ?? 'deny',
       reason: json['reason'] as String? ?? 'Unknown reason',
       riskScore: (json['risk_score'] as num?)?.toInt() ?? 0,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../controllers/wallet_controller.dart';
 import '../../theme/app_theme.dart';
+import 'transaction_proof_page.dart';
 
 class ActivityPage extends StatefulWidget {
   final WalletController controller;
@@ -92,6 +93,14 @@ class _ActivityTile extends StatelessWidget {
               ],
             ),
           ),
+          if (entry.hasProof)
+            IconButton(
+              tooltip: 'Open proof',
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => TransactionProofPage(entry: entry)),
+              ),
+              icon: const Icon(Icons.receipt_long_rounded, color: AppColors.textSecondary, size: 20),
+            ),
           Text(time, style: const TextStyle(color: AppColors.textSecondary, fontSize: 11)),
         ],
       ),
