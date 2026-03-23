@@ -100,6 +100,16 @@ For Android emulator, set in `frontend/lib/config/app_config.dart`:
 defaultValue: 'http://10.0.2.2:8000'
 ```
 
+## Environment Variables
+
+| Variable | Used By | Purpose |
+|---|---|---|
+| `BACKEND_URL` | Flutter app | Points the mobile app to local backend or Cloud Run |
+| `ENCLAVE_URL` | Backend | Routes signing calls to the enclave signer service |
+| `CHAIN_ID` | Backend / contracts | Sepolia chain id is `11155111` |
+
+For the mobile app, `BACKEND_URL` can be passed at runtime with `--dart-define`.
+
 ## Tests
 
 ```bash
@@ -107,6 +117,14 @@ cd backend
 python -m pytest tests/ -v
 # smoke + integration, includes digest Python=Solidity verification
 ```
+
+## Troubleshooting
+
+- If the app shows `Guardian: ERROR`, check the backend `/health` endpoint first.
+- If `enclave_status` is not `ok`, confirm `ENCLAVE_URL` is set on the backend service.
+- If Flutter still points to the wrong backend, run with `--dart-define=BACKEND_URL=...`.
+- If generated Flutter files appear changed after `flutter pub get` or `flutter build`, restore them before committing.
+- If `flutter analyze` reports the Flutter lints include warning, run `flutter pub get` in `frontend/`.
 
 ## Deploy to Cloud Run (Project: perisai-490814)
 
@@ -136,6 +154,14 @@ chmod +x compile_contracts.sh && ./compile_contracts.sh
 # Step 3: Deploy
 python deploy_sepolia.py
 ```
+
+## 60-Second Demo Flow
+
+1. Open the app and show the splash/biometric onboarding.
+2. Register the identity and show the Dashboard becoming `READY`.
+3. Open Transfer and send to the trusted address for `ALLOW`.
+4. Send a suspicious transfer to show `DENY`.
+5. Open Activity or Guardian Detail to show the audit trail, risk score, and live enclave status.
 
 ## Demo Scenarios
 
