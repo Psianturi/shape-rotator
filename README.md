@@ -12,17 +12,54 @@ Privacy-first threshold wallet with a live FastAPI guardian service, a TEE-ready
 
 ## Architecture
 
-```
-Flutter App
-    │ HTTPS
-    ▼
-Guardian API (FastAPI, Cloud Run)   ← /health, /register, /sign-intent, /audit-log, /guardian-profile
-    │ HTTPS + Google OIDC token
-    ▼
-Enclave Signer (FastAPI, Cloud Run) ← private signing boundary, no unauthenticated access
-    │
-    ▼
-PerisAIWallet.sol (Sepolia)     ← executeTransfer(userSig, guardianSig)
+```mermaid
+flowchart TD
+    subgraph app["📱 Flutter Mobile App"]
+        direction TB
+        UI1[Biometric Onboarding\nanonymous commitment only]
+        UI2[Dashboard\nbalance · guardian status]
+        UI3[Transfer\nsend intent]
+        UI4[Activity & Proof\naudit trail · tx proof]
+    end
+
+    subgraph gapi["☁️ Guardian API · Cloud Run · FastAPI"]
+        direction TB
+        EP1["POST /register\nstore identity commitment"]
+        EP2["POST /sign-intent\npolicy check + signing"]
+        EP3["GET /audit-log\ndecision history"]
+        EP4["GET /guardian-profile\nguardian metadata"]
+        EP5["GET /health\nliveness probe"]
+        PE["⚙ Policy Engine\nrisk score · ALLOW / DENY"]
+        EP2 --> PE
+    end
+
+    subgraph enc["🔐 Enclave Signer · Cloud Run · FastAPI\n🔒 Google OIDC — no public access"]
+        direction TB
+        SIGN["POST /sign\nguardian partial signature"]
+        KEY["🔑 In-memory key\nnever persisted to disk"]
+        SIGN --> KEY
+    end
+
+    subgraph chain["⛓ Sepolia Testnet · chain 11155111"]
+        direction LR
+        IR["IdentityRegistry\n0x480E7BA8…\nanonymous commitments"]
+        PW["PerisAIWallet\n0x330d694c…\nexecuteTransfer\nuserSig + guardianSig"]
+        AR["AgentRegistry\n0x0Ad7be67…\n1-user-1-agent binding"]
+    end
+
+    UI1 -- "HTTPS · anonymous commitment" --> EP1
+    UI2 -- "HTTPS · GET /guardian-profile" --> EP4
+    UI2 -- "HTTPS · GET /health" --> EP5
+    UI3 -- "HTTPS · intent + amount + address" --> EP2
+    UI4 -- "HTTPS · GET /audit-log" --> EP3
+
+    PE -- "ALLOW → sign request\n+ Google OIDC token" --> SIGN
+    SIGN -- "guardian partial signature" --> EP2
+    EP2 -- "intent_id · evm_digest · guardianSig" --> UI3
+
+    EP1 -- "on-chain commitment" --> IR
+    UI3 -. "userSig + guardianSig\nexecuteTransfer" .-> PW
+    PW --> AR
 ```
 
 ## Current Live Status
